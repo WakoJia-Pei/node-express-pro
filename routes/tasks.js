@@ -1,9 +1,3 @@
-/**
- * 描述: 任务路由模块
- * 作者: Want Jiang
- * 日期: 2020-09-04
- */
-
 const express = require('express');
 const router = express.Router();
 const service = require('../services/taskService');
@@ -27,4 +21,3 @@ router.put('/updateMark', service.updateMark);
 router.delete('/deleteTask', service.deleteTask);
 
 module.exports = router;
-

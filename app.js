@@ -1,43 +1,39 @@
-/**
- * 描述: 入口文件
- * 作者: Want Jiang
- * 日期: 2020-09-03
- */
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-const bodyParser = require('body-parser'); 				// 引入body-parser模块
-const express = require('express'); 						// 引入express模块
-const cors = require('cors'); 								// 引入cors模块
-const routes = require('./routes'); 						// 导入自定义路由文件，创建模块化路由
-const session = require('express-session');
+const indexRouter = require('./routes/index');
+
 const app = express();
 
-// 使用express-session 来存放数据到session中
-app.use(
-    session({
-        secret: 'secret',
-        resave: false,
-        saveUninitialized: true,
-        cookie: { secure: false }
-    })
-);
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 
-app.use(bodyParser.json()); 									// 解析json数据格式
-app.use(bodyParser.urlencoded({extended: true})); 		// 解析form表单提交的数据application/x-www-form-urlencoded
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(cors()); 												// 注入cors模块解决跨域
-app.use('/', routes);											// 注入自定义的路由
+app.use('/', indexRouter);
 
-// listen方法监听3000端口
-app.listen(3000, () => { 
-	console.log('服务启动成功 http://localhost:3000');
-})
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
 
-// 创建http服务器
-// const server = http.createServer((req, res) => { 
-// 	res.end(str); // 发送响应数据
-// })
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-// listen方法监听3000端口
-// server.listen(3000, () => { 
-// 	console.log('服务启动成功 http://localhost:3000');
-// })
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;
