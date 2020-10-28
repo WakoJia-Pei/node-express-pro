@@ -10,5 +10,9 @@ yarn install
 
 ### 第二步：启动服务
 ```
-node app.js
+npm run start
+or
+yarn run start
 ```
+或者可以按照如图新建启动器
+![](https://cdn.jsdelivr.net/gh/WakoJia-Pei/Picture/main/img/1603868135578-1603868135574-%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20201028144006.png)
