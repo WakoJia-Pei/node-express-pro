@@ -5,7 +5,7 @@
  */
 
 const mysql = require('mysql');
-const dbConfig = require('../dbConfig/index');
+const dbConfig = require('../config/dbConfig');
 
 // 连接数据库
 const connect = () => mysql.createConnection(dbConfig);

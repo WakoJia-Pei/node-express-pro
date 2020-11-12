@@ -5,7 +5,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const concat = require('concat-files')
 
-let uploadDir = 'nodeServer/uploads'
+const { uploadDir, uploadTmpDir } = require('../config/dirConfig');
 
 // 检查文件的MD5
 function checkFileMD5(req, resp) {
@@ -74,13 +74,11 @@ async function getChunkList(filePath, folderPath, callback) {
         }
     } else {
         let isFolderExist = await isExist(folderPath)
-        console.log('文件夹路径==>>> ', folderPath)
+        console.log('文件夹路径==>>> ', isFolderExist, folderPath)
         // 如果文件夹(md5值后的文件)存在, 就获取已经上传的块
         let fileList = []
         if (isFolderExist) {
             fileList = await listDir(folderPath)
-        } else {
-            // await fs.ensureDirSync(folderPath)
         }
         result = {
             stat: 1,
@@ -105,28 +103,28 @@ async function getChunkList(filePath, folderPath, callback) {
 //         })
 //     })
 // }
-
-// 上传文件
-function upload(req, resp) {
-	let form = new formidable.IncomingForm({
-        uploadDir: 'nodeServer/tmp'
+// 文件夹是否存在, 不存在则创建文件夹
+const folderIsExit =  folder => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await fs.ensureDirSync(path.join(folder))
+            resolve(true)
+        } catch (err) {
+            console.log('错错错错错', err)
+        }
     })
-    // 文件夹是否存在, 不存在则创建文件夹
-    const folderIsExit =  folder => {
-        console.log(`创建路径${folder}  还有数`, path.join(folder))
-        return new Promise(async (resolve, reject) => {
-            try {
-                await fs.ensureDirSync(path.join(folder))
-                resolve(true)
-            } catch (err) {
-                console.log('错错错错错', err)
-            }
-        })
-    }
+}
+// 上传文件
+async function upload(req, resp) {
+	let absPath = path.resolve(path.join(path.resolve(__dirname), '..'), uploadTmpDir)
+	// 暂存路径已建立则过 否则新建
+	await folderIsExit(absPath)
+	let form = new formidable.IncomingForm({
+        uploadDir: uploadTmpDir
+    })
 
     // 把文件从一个目录拷贝到别一个目录
     const copyFile = (src, dest) => {
-        console.log(`拷贝文件==>>> 临时${src}  目标目录${dest}`)
         return new Promise((resolve, reject) => {
             fs.rename(src, dest, err => {
                 if (err) {
@@ -142,8 +140,7 @@ function upload(req, resp) {
         let total = fields.total
         let fileMd5Value = fields.fileMd5Value
         let folder =  path.resolve(path.join(path.resolve(__dirname), '..'), uploadDir, fileMd5Value)
-        let isExit = await folderIsExit(folder)
-        console.log(`判断${folder}路径存不存在  ${isExit}`)
+        await folderIsExit(folder)
         let destFile = path.resolve(folder, fields.index)
         console.log('----------->', file.data.path, destFile)
         copyFile(file.data.path, destFile).then(
@@ -188,9 +185,9 @@ async function mergeFiles(srcDir, targetDir, newFileName, size) {
         }
         concat(fileArr, path.join(targetDir, newFileName), () => {
             console.log('Merge Success!')
+            fs.removeSync(srcDir)
         })
-    }
-    
+    }  
 }
 
 module.exports = {
