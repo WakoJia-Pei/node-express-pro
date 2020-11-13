@@ -113,6 +113,12 @@ function addTask(req, res, next) {
               data: null 
             })
           }
+        }).catch(err => {
+          res.json({ 
+              code: CODE_ERROR, 
+              msg: err.sqlMessage, 
+              data: null 
+            })
         })
       }
     })
@@ -146,6 +152,12 @@ function editTask(req, res, next) {
               data: null 
             })
           }
+        }).catch(err => {
+          res.json({ 
+            code: CODE_ERROR, 
+            msg: err.sqlMessage, 
+            data: null 
+          })
         })
         // findTask(title, 1).then(result => {
         //   if (result[0]) {
