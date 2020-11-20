@@ -185,7 +185,7 @@ async function mergeFiles(srcDir, targetDir, newFileName, size) {
         }
         concat(fileArr, path.join(targetDir, newFileName), () => {
             console.log('Merge Success!')
-            fs.removeSync(srcDir)
+            // fs.removeSync(srcDir)
         })
     }  
 }
