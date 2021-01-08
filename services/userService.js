@@ -73,9 +73,11 @@ function login(req, res, next) {
           id: user[0].id,
           username: user[0].username,
           nickname: user[0].nickname,
-          avator: user[0].avator,
+          avatar: user[0].avator || 'https://portrait.gitee.com/uploads/avatars/user/767/2303431_WakoJam_1578971415.png!avatar200',
           sex: user[0].sex,
-          gmt_create: user[0].joinDate
+          gmt_create: user[0].joinDate,
+          roles: ['admin'],
+          ability: []
         };
 
         res.json({ 
